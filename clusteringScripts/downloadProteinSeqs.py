@@ -29,7 +29,7 @@ class DownloadThread(threading.Thread):
 
 
 if __name__ == "__main__":
-    apiKey = "541c5410ae8607fe929a6ce9ecd6ad3be309"
+    apiKey = "API KEY HERE"
     loadedFiles = set(glob("/Users/cazcullimore/dev/makingPhageDataset/proteinFastas/fastas/*fasta"))
     timeToSleep = 0.3
     maxSleep = 0.3

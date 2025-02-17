@@ -1,63 +1,55 @@
-# makes groups to be used for a muscle MSA based on a single linkage
 import pandas as pd
 from copy import deepcopy
 import sys
+import random
 
-EVALUE_INDEX = -2
-QUERY_NAME_INDEX = 0
-SUBJECT_NAME_INDX = 1
-
-
-
-if __name__ == "__main__":
-
-    blastOutputFileName = sys.argv[1]#"blastOut.tsv"
-    print(blastOutputFileName,"blastArg")
-    blastOutput = pd.read_csv(blastOutputFileName, sep="\t")
-    print("read file")
-    print(blastOutput.columns)
-    print(blastOutput)
-    queryNames = set(blastOutput["query acc.ver"].tolist())
+def combineClusters(similarProteins):
     
-    # familes = [set(name) for name in queryNames]
+    directConnections = {}
+    for i,fam1 in enumerate(similarProteins):
+            print(i/len(similarProteins), "progress making connections")
+            for j,fam2 in enumerate(similarProteins):
+                if i == j:
+                    continue
+                if not fam1.isdisjoint(fam2):
+                    if i not in directConnections.keys():
+                        directConnections[i] = set()
+                    directConnections[i].add(j)
 
-    similarProteins = []
-    blastOutput = blastOutput.loc[blastOutput["evalue"] < 1e-10]
-    for name in queryNames:
-        famForThisProtein = set(blastOutput.loc[blastOutput["query acc.ver"] == name]["subject acc.ver"].tolist())
-        similarProteins.append(famForThisProtein)
+    groupsUnvisited = set(range(len(similarProteins)))
+    groupsWithNoConnections = groupsUnvisited.difference(set(directConnections.keys()))
+    groupsUnvisited = set(directConnections.keys())
+    finalGroups = [similarProteins[g] for g in groupsWithNoConnections]
+    print("found connections")
 
-    print(similarProteins)
-    with open("clusters", "w") as out:
+    while groupsUnvisited:
 
-        print("groups =",similarProteins,file=out)
-    exit(0)
-    # now we have a set of proteins and we need to merge sets that have overlapping proteins
+        
+        currentGroupIndex = groupsUnvisited.pop() # 0 
 
+        currentGroup = similarProteins[currentGroupIndex] # 1
 
-    # while True:
-    #     print(len(similarProteins))
-    #     lastSimProteins = []
-    #     changed = False
-    #     for i,fam1 in enumerate(similarProteins):
-    #         # foundMatch = False
-    #         for j,fam2 in enumerate(similarProteins):
-    #             if i >= j:
-    #                 continue
-    #             if not fam1.isdisjoint(fam2):
-    #                 fam1 = fam1.union(fam2)
-    #                 # lastSimProteins.append(fam1)
-    #                 # foundMatch = True
-    #         # if not foundMatch:
-    #         lastSimProteins.append(fam1)
-    #     if lastSimProteins != similarProteins:
-    #         break
-       
-        # similarProteins = lastSimProteins
-    oldNumFams = len(similarProteins)
+        groupsToVisit = set(directConnections[currentGroupIndex]) # {1}
+        while groupsToVisit:
+            connectionIndex = groupsToVisit.pop()
+            if not connectionIndex in groupsUnvisited:
+                continue
+            groupsUnvisited.remove(connectionIndex)
+            groupsToVisit = groupsToVisit.union(set(directConnections[connectionIndex]))
+            currentGroup = currentGroup.union(similarProteins[connectionIndex])
+        finalGroups.append(currentGroup)
+    return finalGroups
+
+def test():
+    p = [{1,2,3,4,5}, {2,3,9,8}, {0,10,20,30}]
+    out = combineClusters(p)
+
+    assert [{0, 10, 20, 30}, {1, 2, 3, 4, 5, 8, 9}] == out or [ {1, 2, 3, 4, 5, 8, 9},{0, 10, 20, 30}] == out
+
+def bruteForce(similarProteinsArg):
+    similarProteins = deepcopy(similarProteinsArg)
     while True:
         restart = False
-        print(len(similarProteins))
         for i,fam1 in enumerate(similarProteins):
             for j,fam2 in enumerate(similarProteins):
                 if i >= j:
@@ -70,11 +62,39 @@ if __name__ == "__main__":
             if restart:
                 break
         if not restart:
-            break
+            return similarProteins
+def testRandom():
+    numTests = 100
+    for _ in range(numTests):
+        numGroups = 200
+        p = [{random.randint(0,10000) for _ in range(10)} for _ in range(numGroups)]
+        brutOut = bruteForce(p)
+        brutOut.sort(key=lambda a: sum(a))
+        clusterOut = combineClusters(p)
+        clusterOut.sort(key=lambda a: sum(a))
+        assert len(brutOut) == len(clusterOut)
+        for i,group in enumerate(brutOut):
+            if len(group.difference(clusterOut[i])) > 0 or len(clusterOut[i].difference(group)) > 0:
+                raise Exception((brutOut,clusterOut))
+if __name__ == "__main__":
+
+    isTesting = False
+    if not isTesting:
+        # blastOutputFileName = sys.argv[1]#"blastOut.tsv"
+        blastOutputFileName = "~/Downloads/allGBProteinsPairwiseBlast.tsv" #"smallPairwiseBlast.tsv"
+        blastOutput = pd.read_csv(blastOutputFileName, sep="\t")
         
-    print(similarProteins)
-    with open("clusters", "w") as out:
+        print(blastOutput.columns)
+        print(blastOutput)
+        queryNames = set(blastOutput["query acc.ver"].tolist())
+        similarProteins = []
+        for name in queryNames:
+            famForThisProtein = set(blastOutput.loc[blastOutput["query acc.ver"] == name].loc[blastOutput["evalue"] < 1e-10]["subject acc.ver"].tolist())
+            similarProteins.append(famForThisProtein)
+        
+        finalGroups = combineClusters(similarProteins)
+        print(finalGroups)
 
-        print(similarProteins,file=out)
-     
-
+    else:
+        test()
+        testRandom()
