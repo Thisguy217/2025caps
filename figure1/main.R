@@ -1,5 +1,6 @@
 library(tidyverse)
 
+#These files are the zipped files found in this same directory, just unzip them and run the code
 blast = read_tsv('proportionConservedBlastOutput.tsv') %>%
   filter(numSeqs > 50) %>%
   filter(numConserved <= 50) %>%
