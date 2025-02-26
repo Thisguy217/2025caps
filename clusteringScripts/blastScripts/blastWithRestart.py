@@ -30,9 +30,6 @@ def runBlast(queryFile,subjectFile,outFile):
 
 
 def getQueryNames(blastOutputFileName):
-    """looks like this: 
-        129	128189	93.443	122	8	0	1	122	1	122	1.06e-84	244
-    """
     
     blastOutput = pd.read_csv(blastOutputFileName, sep="\t")
     print(blastOutput)
@@ -41,9 +38,8 @@ def getQueryNames(blastOutputFileName):
         return set()
     # redo last protein in case of incomplete blast
     lastElt = queryNames[-1]
-    while len(queryNames) > 0 and queryNames[-1] == lastElt:
-        queryNames.pop()
     queryNames = set(queryNames)
+    queryNames.remove(lastElt)
     return queryNames
 
 def runNextAssignedBlast(assignedQueryFileName,subjectFileName,blastOutputFileName): # each job has its own list of assigned queries
@@ -56,13 +52,14 @@ def runNextAssignedBlast(assignedQueryFileName,subjectFileName,blastOutputFileNa
     queriesRan = getQueryNames(blastOutputFileName) # do we want to name queries?
     queryNamesToRun = set(assignedQueries.keys()).difference(queriesRan)
     queriesToRunFileName = "temp_queriesToRun.fasta"
+    print("queries to run", len(queryNamesToRun))
     with open(queriesToRunFileName, "w") as queriesToRunFile: 
         for name in queryNamesToRun:
             queriesToRunFile.write(">" + name + "\n")
             queriesToRunFile.write(assignedQueries[name] + "\n")
 
     runBlast(queriesToRunFileName, subjectFileName,blastOutputFileName)
-    os.remove(queriesToRunFileName)
+    # os.remove(queriesToRunFileName)
 
 if __name__ == "__main__":
 

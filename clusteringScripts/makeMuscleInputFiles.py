@@ -1,6 +1,7 @@
 # takes a combined fasta and makes a fasta for each group with the sequences in each group 
-from blastGroups import * # these groups have to be updated it is just a python file with a list of sets that contains the names of each sequence in the group
 import sys
+import os
+import pickle
 def readInFastaAsDict(fileName):
     fileData = {}
     with open(fileName) as file:
@@ -19,9 +20,14 @@ def readInFastaAsDict(fileName):
 
 
 allSeqs = readInFastaAsDict(sys.argv[1])
+with open("clusterGroups.p","rb") as file:
+    groups = pickle.load(file)
+outdirName = "msa/"
+
+os.mkdir(outdirName)
 
 for i, group in enumerate(groups):
-    with open("blastGroupMsa/group" + str(i) + ".fasta", "w") as outfile:
+    with open(os.path.join(outdirName, "group" + str(i) + ".fasta"), "w") as outfile:
         for seqName in group:
             outfile.write(">" + str(seqName) + "\n")
             outfile.write(allSeqs[str(seqName)] + "\n")

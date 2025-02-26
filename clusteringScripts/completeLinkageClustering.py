@@ -3,6 +3,7 @@ from copy import deepcopy
 import sys
 import random
 from time import *
+import pickle
 
 def combineClusters(connectedProteins, proteinNames):
 
@@ -44,8 +45,7 @@ if __name__ == "__main__":
 
     isTesting = False
     if not isTesting:
-        # blastOutputFileName = sys.argv[1]#"blastOut.tsv"
-        blastOutputFileName = "/Users/cazcullimore/Downloads/allGBProteinsPairwiseBlast.tsv" #"smallPairwiseBlast.tsv"
+        blastOutputFileName = sys.argv[1]#"blastOut.tsv"
         blastOutput = pd.read_csv(blastOutputFileName, sep="\t")
         
         print(blastOutput.columns)
@@ -57,8 +57,11 @@ if __name__ == "__main__":
             connectedProteins[name] = famForThisProtein
         
         finalGroups = combineClusters(connectedProteins, connectedProteins.keys())
-        testAll(finalGroups, connectedProteins)
-        print(finalGroups)
+
+        with open("clusterGroups.p","wb") as out:
+            groupsToDump = list(finalGroups.values())
+            pickle.dump(groupsToDump,out)
+        print(finalGroups.values())
 
     else:
         test()

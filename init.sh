@@ -5,7 +5,6 @@ scriptRelativeDir=/slurmScripts/
 bashProfilePath=~/.bash_profile
 bashRCPath=~/.bashrc
 
-
 force=false
 if [[ $* == *-f* ]]; then
    echo forced
@@ -14,7 +13,10 @@ else
    echo not forced
 fi
 
+currentDir=$(pwd)
+echo currentDir $currentDir
 
+find . -type f -exec sed -i.bak "s#TEMP_INSTALL_LOCATION#${currentDir}#g" {} \;
 
 #add mamba import
 if ( ! cat $bashRCPath | grep -q "conda\|mamba" ) || ( $force == true ) ; 
@@ -50,7 +52,8 @@ fi
 exportCall="export PATH=\$PATH:$(pwd)$scriptRelativeDir"
 if ( ! cat $bashProfilePath| grep -q "$exportCall" ) || ( $force == true ) ; 
 then
-    echo "\n$exportCall" >> $bashProfilePath
+    echo "" >> $bashProfilePath
+    echo "$exportCall" >> $bashProfilePath
     echo updated path to bashprofile
 else
     echo not updated path to bashprofile
@@ -62,7 +65,8 @@ fi
 bashRCCall="[[ -f ~/.bashrc ]] && source ~/.bashrc"
 if ( ! cat $bashProfilePath| grep -q "$bashRCCall" ) || ( $force == true ) ; 
 then
-    echo "\n$bashRCCall" >> $bashProfilePath
+    echo ""  >> $bashProfilePath
+    echo "$bashRCCall" >> $bashProfilePath
     echo added bash call to bashprofile
 else
     echo not added bashrc call to bashprofile
@@ -74,3 +78,5 @@ source "$bashProfilePath"
 
 mamba create -n cap2025_blast pandas bioconda::blast
 mamba create -n cap2025_muscle bioconda::muscle
+
+mv init.sh.bak init.sh
