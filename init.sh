@@ -17,7 +17,8 @@ currentDir=$(pwd)
 echo currentDir $currentDir
 
 find . -type f -exec sed -i.bak "s#TEMP_INSTALL_LOCATION#${currentDir}#g" {} \;
-
+# unininit
+# find . -type f -exec sed -i.bak "s#${currentDir}#TEMP_INSTALL_LOCATION#g" {} \;
 #add mamba import
 if ( ! cat $bashRCPath | grep -q "conda\|mamba" ) || ( $force == true ) ; 
 then
