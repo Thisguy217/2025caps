@@ -1,3 +1,8 @@
+from scipy.stats import norm
+#import matplotlib.pyplot as plt
+#import seaborn as sns; sns.set()
+import numpy as np
+from glob import glob
 import re
 import sys
 

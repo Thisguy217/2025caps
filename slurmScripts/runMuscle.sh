@@ -4,7 +4,7 @@ pwd
 
 mamba activate cap2025_muscle
 
-for i in {20..199};do
+for i in {40..399};do
 echo i 
 ls -l group${i}*fasta | wc -l
 

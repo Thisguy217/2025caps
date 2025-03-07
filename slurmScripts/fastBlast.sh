@@ -12,7 +12,7 @@ mamba activate cap2025_blast
 subjectFileName=$1
 echo $subjectFileName
 
-dirToScripts=/home/cazvash9/2025capsInited/clusteringScripts/blastScripts/
+dirToScripts=TEMP_INSTALL_LOCATION/clusteringScripts/blastScripts/
 
 python ${dirToScripts}assignQueries.py $subjectFileName $2
 
