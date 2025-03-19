@@ -46,12 +46,12 @@ def getSeqOfModeLength(seqs):
     # print("seq len",len(closestSeq))
     return closestSeq
 
-def getConservedIndexes(fileName, seqToMatch=None,getMode=False):
+def getConservedIndexes(fileName, seqToMatch=None):
 
     file = readInFastaAsDict(fileName)
     msaLength = len(list(file.values())[0])
     unalignedSeqs = [seq.replace("-","") for seq in file.values()]
-    if getMode:
+    if not seqToMatch:
         seqToMatch = getSeqOfModeLength(unalignedSeqs)
     seqIndexToMatch = unalignedSeqs.index(seqToMatch)
 
