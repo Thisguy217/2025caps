@@ -50,9 +50,10 @@ def getConservedIndexes(fileName, seqToMatch=None):
 
     file = readInFastaAsDict(fileName)
     msaLength = len(list(file.values())[0])
-    unalignedSeqs = [seq.replace("-","") for seq in file.values()]
+    alignedSeqs = list(file.values())
+    unalignedSeqs = [seq.replace("-","") for seq in alignedSeqs]
     if not seqToMatch:
-        seqToMatch = getSeqOfModeLength(unalignedSeqs)
+       seqToMatch = getSeqOfModeLength(unalignedSeqs)
     seqIndexToMatch = unalignedSeqs.index(seqToMatch)
 
    
@@ -62,7 +63,7 @@ def getConservedIndexes(fileName, seqToMatch=None):
     for i in range(msaLength):
         aa = ""
         isConserved=True
-        for seqIndex, seq in enumerate(file.values()):
+        for seqIndex, seq in enumerate(alignedSeqs):
             if aa == "":
                 aa = seq[i]
             else:
@@ -88,4 +89,3 @@ if __name__ == "__main__":
         print(*output,sep="\t")
         
 
-        

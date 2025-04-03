@@ -2,6 +2,7 @@ import pandas as pd
 from copy import deepcopy
 import sys
 import random
+import pickle
 
 def combineClusters(similarProteins):
     
@@ -93,7 +94,12 @@ if __name__ == "__main__":
             similarProteins.append(famForThisProtein)
         
         finalGroups = combineClusters(similarProteins)
+
         print(finalGroups)
+
+        with open("clusterGroups.p","wb") as out:
+            groupsToDump = list(finalGroups)
+            pickle.dump(groupsToDump,out)
 
     else:
         test()

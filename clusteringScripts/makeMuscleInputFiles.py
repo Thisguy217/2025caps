@@ -19,16 +19,19 @@ def readInFastaAsDict(fileName):
     return fileData
 
 
-allSeqs = readInFastaAsDict(sys.argv[1])
-with open("clusterGroups.p","rb") as file:
-    groups = pickle.load(file)
-outdirName = "msa/"
 
-os.mkdir(outdirName)
+if __name__ == "__main__":
+    allSeqs = readInFastaAsDict(sys.argv[1])
+    with open("clusterGroups.p","rb") as file:
+        groups = pickle.load(file)
 
-for i, group in enumerate(groups):
-    with open(os.path.join(outdirName, "group" + str(i) + ".fasta"), "w") as outfile:
-        for seqName in group:
-            outfile.write(">" + str(seqName) + "\n")
-            outfile.write(allSeqs[str(seqName)] + "\n")
+    outdirName = sys.argv[2]
+
+    os.mkdir(outdirName)
+
+    for i, group in enumerate(groups):
+        with open(os.path.join(outdirName, "group" + str(i) + ".fasta"), "w") as outfile:
+            for seqName in group:
+                outfile.write(">" + str(seqName) + "\n")
+                outfile.write(allSeqs[str(seqName)] + "\n")
 

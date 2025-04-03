@@ -39,7 +39,7 @@ done
 # clustering
 python TEMP_INSTALL_LOCATION/clusteringScripts/completeLinkageClustering.py cattedBlastOut.tsv
 
-python TEMP_INSTALL_LOCATION/clusteringScripts/makeMuscleInputFiles.py $1 #could include outdir right now just writes to msa
+python TEMP_INSTALL_LOCATION/clusteringScripts/makeMuscleInputFiles.py $1 completeLinkageMSA 
 
 cd msa
 
