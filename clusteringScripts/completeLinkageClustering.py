@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     isTesting = False
     if not isTesting:
-        blastOutputFileName = sys.argv[1]#"blastOut.tsv"
+        blastOutputFileName = sys.argv[1]
         blastOutput = pd.read_csv(blastOutputFileName, sep="\t")
         
         print(blastOutput.columns)

@@ -28,22 +28,42 @@ while  squeue -u whoami -o "%.180j" | grep -q "\${1%.*}blastJob.job"; do
         sleep 10
 done
 
-# TODO: concat from each output 
+concat from each output 
 head -n 1 blastJob0/blastOut.tsv > cattedBlastOut.tsv
 for dir in blastJob*/; do
 	tail -n +2 \$dir/blastOut.tsv >> cattedBlastOut.tsv
 done
 
+# making blast groups and alignment
+python TEMP_INSTALL_LOCATION/clusteringScripts/makeMuscleInputFiles.py $1 blastMSA 
 
+cd blastMSA
 
-# clustering
+runMuscle.sh
+
+cd ..
+
+# complete-linkage clustering and alignment
 python TEMP_INSTALL_LOCATION/clusteringScripts/completeLinkageClustering.py cattedBlastOut.tsv
 
 python TEMP_INSTALL_LOCATION/clusteringScripts/makeMuscleInputFiles.py $1 completeLinkageMSA 
 
-cd msa
+cd completeLinkageMSA
 
 runMuscle.sh
+
+cd ..
+
+# single-linkage clustering and alignment
+python TEMP_INSTALL_LOCATION/clusteringScripts/singleLinkageClustering.py cattedBlastOut.tsv
+
+python TEMP_INSTALL_LOCATION/clusteringScripts/makeMuscleInputFiles.py $1 singleLinkageMSA 
+
+cd singleLinkageMSA
+
+runMuscle.sh
+
+cd ..
 
 EOF
 #sbatch $jobName
