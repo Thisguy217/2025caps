@@ -79,5 +79,6 @@ source "$bashProfilePath"
 
 mamba create -n cap2025_blast pandas bioconda::blast
 mamba create -n cap2025_muscle bioconda::muscle
+mamba create -n cap2025_r conda-forge::r-base
 
 mv init.sh.bak init.sh

@@ -5,8 +5,8 @@ if [ ! $2 ]; then
     exit 0
 fi
 
-fastBlast.sh $1 $2
-sleep 50 # TODO: sleep 1000 for big jobs or sleep wc -l 
+#fastBlast.sh $1 $2
+#sleep 50 # TODO: sleep 1000 for big jobs or sleep wc -l 
 jobIDs=$(ls */*out | grep -oP "slurm.+t" | grep -oP "\d+")
 jobIDs=$(echo $jobIDs | sed "s/ /,/g")
 
@@ -35,6 +35,7 @@ for dir in blastJob*/; do
 done
 
 # making blast groups and alignment
+python TEMP_INSTALL_LOCATION/clusteringScripts/getBlastGroups.py cattedBlastOut.tsv
 python TEMP_INSTALL_LOCATION/clusteringScripts/makeMuscleInputFiles.py $1 blastMSA 
 
 cd blastMSA
@@ -65,9 +66,25 @@ runMuscle.sh
 
 cd ..
 
+while  squeue -u whoami -o "%.180j" | grep -q "Muscle"; do
+        sleep 10
+done
+
+python TEMP_INSTALL_LOCATION/benchmarkScripts/findConservedIndexes.py blastMSA/*afa > proportionConservedBlastOutput.tsv
+python TEMP_INSTALL_LOCATION/benchmarkScripts/findConservedIndexes.py completeLinkageMSA/*afa > proportionConservedCompleteLinkage.tsv
+python TEMP_INSTALL_LOCATION/benchmarkScripts/findConservedIndexes.py singleLinkageMSA/*afa > proportionConservedSingleLinkage.tsv
+
+mamba activate cap2025_r
+
+currentDir=$(pwd)
+
+Rscript TEMP_INSTALL_LOCATION/figure1/main.R ${currentDir}/proportionConservedBlastOutput.tsv ${currentDir}/proportionConservedCompleteLinkage.tsv ${currentDir}/proportionConservedSingleLinkage.tsv
+
 EOF
 
-# TODO: add if statement in case of pending
-#sbatch $jobName
-sbatch --dependency afterany:$jobIDs $jobName
 
+if [[ $jobIDs ]]; then;
+    sbatch --dependency afterany:$jobIDs $jobName
+else
+    sbatch $jobName
+fi

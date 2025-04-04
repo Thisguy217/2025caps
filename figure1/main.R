@@ -1,15 +1,16 @@
 library(tidyverse)
+options(echo=TRUE)
+args <- commandArgs(trailingOnly = TRUE)
 
-#These files are the zipped files found in this same directory, just unzip them and run the code
-blast = read_tsv('proportionConservedBlastOutput.tsv') %>%
+blast = read_tsv(args[1]) %>%
   filter(numSeqs > 50) %>%
   filter(numConserved <= 50) %>%
   filter(numConserved > 0)
-complete = read_tsv('proportionConservedCompleteLinkage.tsv') %>%
+complete = read_tsv(args[2]) %>%
   filter(numSeqs > 50) %>%
   filter(numConserved <= 50) %>%
   filter(numConserved > 0)
-single = read_tsv('proportionConservedSingleLinkage.tsv') %>%
+single = read_tsv(args[3]) %>%
   filter(numSeqs > 50) %>%
   filter(numConserved <= 50) %>%
   filter(numConserved > 0)
