@@ -5,8 +5,8 @@ if [ ! $2 ]; then
     exit 0
 fi
 
-#fastBlast.sh $1 $2
-#sleep 50 # TODO: sleep 1000 for big jobs or sleep wc -l 
+fastBlast.sh $1 $2
+sleep 50 # TODO: sleep 1000 for big jobs or sleep wc -l 
 jobIDs=$(ls */*out | grep -oP "slurm.+t" | grep -oP "\d+")
 jobIDs=$(echo $jobIDs | sed "s/ /,/g")
 
@@ -66,6 +66,8 @@ runMuscle.sh
 cd ..
 
 EOF
+
+# TODO: add if statement in case of pending
 #sbatch $jobName
 sbatch --dependency afterany:$jobIDs $jobName
 
