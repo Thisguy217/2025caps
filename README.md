@@ -20,7 +20,7 @@ Proteins are a building block of life, with extensible configuration and design 
 2. etc...
 
 ## Dependencies
-- Python 3.11.11 (the current version installed on Google Colab)
+- Python +3.11 (the current version installed on Google Colab)
   - Biopython, os, subprocess, etc.
 
 ## Contributing
