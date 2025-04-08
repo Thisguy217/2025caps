@@ -32,8 +32,10 @@ combined = bind_rows(
 
 ggplot(data = combined, aes(x = values)) +#, fill = Group)) + 
   geom_histogram(binwidth = 1) + 
-  facet_wrap(~Group, nrow = 1, scale = "free_y") +
+  facet_wrap(~Group, nrow = 1) +
   ggtitle("Conserved Residues by Clustering Method") +
   labs(x = "Number of Conserved Residues", y = "Number of Clusters") +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
+
+ggsave("figure1.png")

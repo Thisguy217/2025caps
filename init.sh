@@ -16,11 +16,11 @@ fi
 currentDir=$(pwd)
 echo currentDir $currentDir
 
-find . -type f -exec sed -i.bak "s#TEMP_INSTALL_LOCATION#${currentDir}#g" {} \;
+find . -type f -exec sed -i "s#TEMP_INSTALL_LOCATION#${currentDir}#g" {} \;
 # unininit
 # find . -type f -exec sed -i.bak "s#${currentDir}#TEMP_INSTALL_LOCATION#g" {} \;
 #add mamba import
-if ( ! cat $bashRCPath | grep -q "conda\|mamba" ) || ( $force == true ) ; 
+if ( ! cat $bashRCPath | grep -q "mamba" ) || ( $force == true ) ; 
 then
     echo added mamba import to bashrc
     

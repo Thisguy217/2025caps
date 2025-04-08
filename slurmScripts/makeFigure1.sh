@@ -5,8 +5,8 @@ if [ ! $2 ]; then
     exit 0
 fi
 
-#fastBlast.sh $1 $2
-#sleep 50 # TODO: sleep 1000 for big jobs or sleep wc -l 
+fastBlast.sh $1 $2
+sleep 50 # TODO: sleep 1000 for big jobs or sleep wc -l 
 jobIDs=$(ls */*out | grep -oP "slurm.+t" | grep -oP "\d+")
 jobIDs=$(echo $jobIDs | sed "s/ /,/g")
 
@@ -15,7 +15,7 @@ cat<<EOF>$jobName
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --mem=32GB
+#SBATCH --mem=8GB
 #SBATCH --export=ALL
 #SBATCH -t 72:00:00
 #SBATCH --partition=msg,bus,physics,pws,m9pws,pws3,mkt24,m11-1,m11-2,m8,m8n,m9,m8g,m9g,paulbryf,bio,bep8
@@ -23,12 +23,14 @@ cat<<EOF>$jobName
 [[ -f ~/.bashrc ]] && source ~/.bashrc
 mamba activate cap2025_blast
 
+name=$(whoami)
+echo \$name
 # wait for fastBlast to finish this is because some jobs could have been preempted and still be running
-while  squeue -u whoami -o "%.180j" | grep -q "\${1%.*}blastJob.job"; do
+while  squeue -u \$name -o "%.180j" | grep -q "${1%.*}blastJob.job"; do
         sleep 10
 done
-
-concat from each output 
+echo done sleeping
+#concat from each output 
 head -n 1 blastJob0/blastOut.tsv > cattedBlastOut.tsv
 for dir in blastJob*/; do
 	tail -n +2 \$dir/blastOut.tsv >> cattedBlastOut.tsv
@@ -66,7 +68,7 @@ runMuscle.sh
 
 cd ..
 
-while  squeue -u whoami -o "%.180j" | grep -q "Muscle"; do
+while  squeue -u \$name -o "%.180j" | grep -q "Muscle"; do
         sleep 10
 done
 
@@ -78,12 +80,12 @@ mamba activate cap2025_r
 
 currentDir=$(pwd)
 
-Rscript TEMP_INSTALL_LOCATION/figure1/main.R ${currentDir}/proportionConservedBlastOutput.tsv ${currentDir}/proportionConservedCompleteLinkage.tsv ${currentDir}/proportionConservedSingleLinkage.tsv
+Rscript TEMP_INSTALL_LOCATION/figure1/main.R \${currentDir}/proportionConservedBlastOutput.tsv \${currentDir}/proportionConservedCompleteLinkage.tsv \${currentDir}/proportionConservedSingleLinkage.tsv
 
 EOF
 
 
-if [[ $jobIDs ]]; then;
+if [ $jobIDs ]; then
     sbatch --dependency afterany:$jobIDs $jobName
 else
     sbatch $jobName
